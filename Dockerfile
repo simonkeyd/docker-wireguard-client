@@ -4,28 +4,14 @@ ARG WIREGUARD_RELEASE
 RUN echo "**** install dependencies ****" && \
   apt-get update && \
   apt-get install -y --no-install-recommends \
-    bc \
     build-essential \
     ca-certificates \
     curl \
-    dkms \
     git \
-    gnupg \
-    ifupdown \
-    iproute2 \
-    iptables \
-    iputils-ping \
     jq \
-    libc6 \
-    libelf-dev \
-    net-tools \
-    openresolv \
-    perl \
-    pkg-config \
-    qrencode
+    libc6
 
-RUN echo "**** install services ****" && \
-  mkdir /app && \
+RUN mkdir /app && \
   cd /tmp && \
   echo "**** install wireguard-tools ****" && \
   if [ -z ${WIREGUARD_RELEASE+x} ]; then \
@@ -60,13 +46,12 @@ RUN apt-get update && \
   iputils-ping \
   net-tools \
   openresolv \
-  procps \
-  qrencode && \
+  procps && \
   apt-get clean
 
 COPY --from=build /app /app
 
-COPY /root /
+COPY /init.sh /
 
-# ports and volumes
-EXPOSE 51820/udp
+CMD /bin/bash /init.sh
+HEALTHCHECK --timeout=6s CMD ping -c 3 -W 1 -I wg0 8.8.8.8 || bash -c 'kill -s 15 -1 && (sleep 10; kill -s 9 -1)'
