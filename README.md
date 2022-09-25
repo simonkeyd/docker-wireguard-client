@@ -63,7 +63,7 @@ services:
 
 ```bash
 docker run -d \
-  --name=wireguard \
+  --name=wireguard-client \
   --cap-add=NET_ADMIN \
   --cap-add=SYS_MODULE \
   -e LOCAL_NETWORK=192.168.1.0/24 \
