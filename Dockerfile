@@ -24,6 +24,9 @@ RUN mkdir /app && \
   export PREFIX="../wireguard-tools/" && \
   make -C src -j$(nproc) && \
   make -C src install && \
+  # prevent wg-quick from running sysctl when param is already set
+  # (has to be set at container start with --sysctl docker parameter instead)
+  sed -i 's/cmd sysctl -q \(.*\?\)=\(.*\)/[[ "$(sysctl -n \1)" != "\2" ]] \&\& \0/' wireguard-tools/bin/wg-quick && \
   mv wireguard-tools/bin /app/wireguard-tools && \
   cd /app && \
   git clone https://git.zx2c4.com/wireguard-linux-compat && \
